@@ -1,7 +1,7 @@
 module Main where
 
 import           BuckinghamPi
-import           Numeric.LinearAlgebra.HMatrix (nullspace)
+import           Numeric.LinearAlgebra.HMatrix
 
 rho = DimensionalVariable "rho" [(Mass   , 1.0)  , (Length , -3.0)]
 vel = DimensionalVariable "v"   [(Length , 1.0)  , (Time   , -1.0)]

@@ -58,6 +58,8 @@ getVariableCombinations repeatingVars = map (\x -> repeatingVars ++ [x])
 buildMatrix :: [DimensionalVariable] -> [FundamentalUnit] -> Matrix Double
 buildMatrix varCombination funUnits = fromLists $ map (getEquation varCombination) funUnits
 
+
+
 -- Define function which takes a list of dimensional variables along with a list of integers
 -- that identifies which are the repeated variables, and returns a list of dimensionless variables.
 --generatePiGroups :: [DimensionalVariable] -> [Int] -> [DimensionlessVariable]
