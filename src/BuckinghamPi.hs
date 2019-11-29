@@ -11,6 +11,7 @@ import           Control.Applicative
 import           Data.List                     (nub)
 import           Numeric.LinearAlgebra.Data
 import           Numeric.LinearAlgebra.HMatrix
+import           Text.Printf                   (printf)
 
 -- Define sum type for fundamental units (M,L,T,Theta).
 data FundamentalUnit = Mass | Length | Time | Temperature deriving (Eq,Show)
@@ -23,7 +24,11 @@ type Exponent = Double
 data DimensionalVariable = DimensionalVariable {name :: String, units :: [(FundamentalUnit, Exponent)]} deriving (Eq,Show)
 
 -- Define data type for a dimensionless variable.
-data DimensionlessVariable = DimensionlessVariable {dimensionalVariables :: [DimensionalVariable], exponents :: [Exponent]} deriving (Eq,Show)
+data DimensionlessVariable = DimensionlessVariable {dimensionalVariables :: [DimensionalVariable], exponents :: [Exponent]} deriving (Eq)
+
+-- Define show instance for a dimensionless variable.
+instance Show DimensionlessVariable where
+  show (DimensionlessVariable dimVars exps) = concat $ zipWith (printf "%s^(%.4f) ") (map name dimVars) exps
 
 getFundamentalUnits :: DimensionalVariable -> [FundamentalUnit]
 getFundamentalUnits dimVar = map fst $ units dimVar
@@ -58,10 +63,17 @@ getVariableCombinations repeatingVars = map (\x -> repeatingVars ++ [x])
 buildMatrix :: [DimensionalVariable] -> [FundamentalUnit] -> Matrix Double
 buildMatrix varCombination funUnits = fromLists $ map (getEquation varCombination) funUnits
 
-
+findDimensionlessGroup :: [FundamentalUnit] -> [DimensionalVariable] -> DimensionlessVariable
+findDimensionlessGroup dimVars funUnits = DimensionlessVariable dimVars (concat . toLists $ nullspace $ buildMatrix dimVars funUnits)
 
 -- Define function which takes a list of dimensional variables along with a list of integers
 -- that identifies which are the repeated variables, and returns a list of dimensionless variables.
+generatePiGroups :: [DimensionalVariable] -> [Int] -> [DimensionlessVariable]
+generatePiGroups dimVars repeatingVarInds = map (\d -> findDimensionlessGroup d funUnits) repeatingVars
+  where
+    repeatingVars = [dimVars !! i | i <- repeatingVarInds]
+    funUnits = getUniqueFundamentalUnits dimVars
+
 --generatePiGroups :: [DimensionalVariable] -> [Int] -> [DimensionlessVariable]
 --generatePiGroups dimVars repeatedIndices = zipWith DimensionlessVariable varCombinations ((toList $ lhs <\> rhs) :: [Exponent])
 --  where

@@ -9,5 +9,8 @@ l   = DimensionalVariable "l"   [(Length , 1.0)]
 mu  = DimensionalVariable "mu"  [(Mass   , 1.0)  , (Length , -1.0)  , (Time , -1.0)]
 a   = DimensionalVariable "a"   [(Length , 1.0)  , (Time   , 1.0)]
 
+dimVars = [rho, vel, l, mu]
+funUnits = [Mass, Length, Time]
+
 main :: IO ()
-main = print $ nullspace $ buildMatrix [rho, vel, l, mu] [Mass, Length, Time]
+main = print $ DimensionlessVariable dimVars (concat . toLists $ nullspace $ buildMatrix dimVars funUnits)
