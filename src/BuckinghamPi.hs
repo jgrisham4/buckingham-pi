@@ -3,12 +3,12 @@ module BuckinghamPi
     FundamentalUnit(..),
     DimensionalVariable(..),
     DimensionlessVariable(..),
-    computeNumberOfGroups,
     buildMatrix,
+    generatePiGroups
     ) where
 
 import           Control.Applicative
-import           Data.List                     (nub)
+import           Data.List                     (nub, (\\))
 import           Numeric.LinearAlgebra.Data
 import           Numeric.LinearAlgebra.HMatrix
 import           Text.Printf                   (printf)
@@ -64,25 +64,13 @@ buildMatrix :: [DimensionalVariable] -> [FundamentalUnit] -> Matrix Double
 buildMatrix varCombination funUnits = fromLists $ map (getEquation varCombination) funUnits
 
 findDimensionlessGroup :: [FundamentalUnit] -> [DimensionalVariable] -> DimensionlessVariable
-findDimensionlessGroup dimVars funUnits = DimensionlessVariable dimVars (concat . toLists $ nullspace $ buildMatrix dimVars funUnits)
+findDimensionlessGroup funUnits dimVars = DimensionlessVariable dimVars (concat . toLists $ nullspace $ buildMatrix dimVars funUnits)
 
 -- Define function which takes a list of dimensional variables along with a list of integers
 -- that identifies which are the repeated variables, and returns a list of dimensionless variables.
 generatePiGroups :: [DimensionalVariable] -> [Int] -> [DimensionlessVariable]
-generatePiGroups dimVars repeatingVarInds = map (\d -> findDimensionlessGroup d funUnits) repeatingVars
+generatePiGroups dimVars repeatingVarInds = map (findDimensionlessGroup funUnits) (getVariableCombinations repeatingVars nonrepeatingVars)
   where
     repeatingVars = [dimVars !! i | i <- repeatingVarInds]
+    nonrepeatingVars = dimVars \\ repeatingVars
     funUnits = getUniqueFundamentalUnits dimVars
-
---generatePiGroups :: [DimensionalVariable] -> [Int] -> [DimensionlessVariable]
---generatePiGroups dimVars repeatedIndices = zipWith DimensionlessVariable varCombinations ((toList $ lhs <\> rhs) :: [Exponent])
---  where
---    repeatingVars = [dimVars !! i | i <- repeatedIndices]
---    nonrepeatingVars = getNonrepeatingVars dimVars repeatedIndices
---    nGroups = computeNumberOfGroups dimVars
---    funUnits = getUniqueFundamentalUnits dimVars
---    varCombinations = map (\x -> repeatingVars ++ [x]) nonrepeatingVars -- :: [[DimensionalVariable]]
---    equations = (map (getEquation funUnits)) repeatingVars <*> nonrepeatingVars
---    lhs = fromLists $ map init equations
---    rhs = fromList $ map last equations
---    soln = lhs <\> rhs
