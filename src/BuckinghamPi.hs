@@ -4,6 +4,7 @@ module BuckinghamPi
     DimensionalVariable(..),
     DimensionlessVariable(..),
     buildMatrix,
+    normalizeExponents,
     generatePiGroups
     ) where
 
@@ -26,9 +27,16 @@ data DimensionalVariable = DimensionalVariable {name :: String, units :: [(Funda
 -- Define data type for a dimensionless variable.
 data DimensionlessVariable = DimensionlessVariable {dimensionalVariables :: [DimensionalVariable], exponents :: [Exponent]} deriving (Eq)
 
+-- Define function which normalizes exponents so that the smallest value is +/- 1.
+normalizeExponents :: [Exponent] -> [Exponent]
+normalizeExponents exps = map (/factor) exps
+  where
+    minExp = minimum exps
+    factor = minExp * signum minExp
+
 -- Define show instance for a dimensionless variable.
 instance Show DimensionlessVariable where
-  show (DimensionlessVariable dimVars exps) = concat $ zipWith (printf "%s^(%.4f) ") (map name dimVars) exps
+  show (DimensionlessVariable dimVars exps) = concatMap (uncurry (printf "%s^(%.4f) ")) $ filter (\t -> abs (snd t) > 1.0e-6) $ zip (map name dimVars) (normalizeExponents exps)
 
 getFundamentalUnits :: DimensionalVariable -> [FundamentalUnit]
 getFundamentalUnits dimVar = map fst $ units dimVar
