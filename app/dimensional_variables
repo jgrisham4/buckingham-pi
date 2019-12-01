@@ -1,0 +1,5 @@
+rho: Mass^(1) Length^(-3)
+vel: Length^(1) Time^(-1)
+l  : Length^(1)
+mu : Mass^(1) Length^(-1) Time^(-1)
+a  : Length^(1) Time^(-1)

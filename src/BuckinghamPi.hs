@@ -3,9 +3,9 @@ module BuckinghamPi
     FundamentalUnit(..),
     DimensionalVariable(..),
     DimensionlessVariable(..),
-    buildMatrix,
-    normalizeExponents,
-    generatePiGroups
+    Exponent(..),
+    generatePiGroups,
+    numFundamentalUnits
     ) where
 
 import           Control.Applicative
